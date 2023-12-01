@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.itg.modules.biz.dao.BizProductionPlanDao">
+    
+	<sql id="bizProductionPlanColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.type AS "type",
+		a.status AS "status",
+		a.existing_number AS "existingNumber",
+		a.project_number AS "projectNumber",
+		b.id AS "bizProduct.id",
+		b.name AS "bizProduct.name",
+		a.plant_id AS "plantId",
+		a.begin_time AS "beginTime",
+		a.end_time AS "endTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bizProductionPlanJoins">
+		LEFT JOIN biz_product b ON a.produet_id = b.id
+	</sql>
+    
+	<select id="get" resultType="BizProductionPlan">
+		SELECT 
+			<include refid="bizProductionPlanColumns"/>
+		FROM biz_production_plan a
+		<include refid="bizProductionPlanJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BizProductionPlan">
+		SELECT 
+			<include refid="bizProductionPlanColumns"/>
+		FROM biz_production_plan a
+		<include refid="bizProductionPlanJoins"/>
+		<where>
+			a.del_flag = #{delFlag}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="type != null and type != ''">
+				AND a.type = #{type}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="bizProduct != null and bizProduct.id != null and bizProduct.id != ''">
+				AND a.produet_id = #{bizProduct.id}
+			</if>
+			<if test="plantId != null and plantId != ''">
+				AND a.plant_id = #{plantId}
+			</if>
+			<if test="beginTime != null and beginTime != ''">
+				AND a.begin_time = #{beginTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND a.end_time = #{endTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BizProductionPlan">
+		SELECT 
+			<include refid="bizProductionPlanColumns"/>
+		FROM biz_production_plan a
+		<include refid="bizProductionPlanJoins"/>
+		<where>
+			a.del_flag = #{delFlag}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO biz_production_plan(
+			id,
+			name,
+			type,
+			status,
+			existing_number,
+			project_number,
+			produet_id,
+			plant_id,
+			begin_time,
+			end_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{type},
+			#{status},
+			#{existingNumber},
+			#{projectNumber},
+			#{bizProduct.id},
+			#{plantId},
+			#{beginTime},
+			#{endTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE biz_production_plan SET 	
+			name = #{name},
+			type = #{type},
+			status = #{status},
+			existing_number = #{existingNumber},
+			project_number = #{projectNumber},
+			produet_id = #{bizProduct.id},
+			plant_id = #{plantId},
+			begin_time = #{beginTime},
+			end_time = #{endTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE biz_production_plan SET 
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

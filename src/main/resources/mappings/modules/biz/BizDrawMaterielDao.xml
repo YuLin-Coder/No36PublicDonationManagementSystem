@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.itg.modules.biz.dao.BizDrawMaterielDao">
+    
+	<sql id="bizDrawMaterielColumns">
+		a.id AS "id",
+		b.id AS "bizMateriel.id",
+		b.name AS "bizMateriel.name",
+		a.draw_batch AS "drawBatch",
+		a.draw_number AS "drawNumber",
+		a.draw_time AS "drawTime",
+		a.staff_id AS "staffId",
+		a.draw_explain AS "drawExplain",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bizDrawMaterielJoins">
+		left join biz_materiel b on a.materiel_id = b.id
+	</sql>
+    
+	<select id="get" resultType="BizDrawMateriel">
+		SELECT 
+			<include refid="bizDrawMaterielColumns"/>
+		FROM biz_draw_materiel a
+		<include refid="bizDrawMaterielJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BizDrawMateriel">
+		SELECT 
+			<include refid="bizDrawMaterielColumns"/>
+		FROM biz_draw_materiel a
+		<include refid="bizDrawMaterielJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="bizMateriel != null and bizMateriel.id != null and bizMateriel.id != ''">
+				AND a.materiel_id = #{bizMateriel.id}
+			</if>
+			<if test="drawBatch != null and drawBatch != ''">
+				AND a.draw_batch = #{drawBatch}
+			</if>
+			<if test="drawNumber != null and drawNumber != ''">
+				AND a.draw_number = #{drawNumber}
+			</if>
+			<if test="drawTime != null and drawTime != ''">
+				AND a.draw_time = #{drawTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BizDrawMateriel">
+		SELECT 
+			<include refid="bizDrawMaterielColumns"/>
+		FROM biz_draw_materiel a
+		<include refid="bizDrawMaterielJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO biz_draw_materiel(
+			id,
+			materiel_id,
+			draw_batch,
+			draw_number,
+			draw_time,
+			staff_id,
+			draw_explain,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{bizMateriel.id},
+			#{drawBatch},
+			#{drawNumber},
+			#{drawTime},
+			#{staffId},
+			#{drawExplain},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE biz_draw_materiel SET 	
+			materiel_id = #{bizMateriel.id},
+			draw_batch = #{drawBatch},
+			draw_number = #{drawNumber},
+			draw_time = #{drawTime},
+			staff_id = #{staffId},
+			draw_explain = #{drawExplain},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE biz_draw_materiel SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

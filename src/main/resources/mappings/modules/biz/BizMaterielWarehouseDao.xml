@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.itg.modules.biz.dao.BizMaterielWarehouseDao">
+    
+	<sql id="bizMaterielWarehouseColumns">
+		a.id AS "id",
+		a.warehouse_id AS "warehouseId",
+		b.id AS "bizMateriel.id",
+		b.name AS "bizMateriel.name",
+		a.in_batch AS "inBatch",
+		a.in_number AS "inNumber",
+		a.in_time AS "inTime",
+		a.staff_id AS "staffId",
+		a.auditer_id AS "auditerId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bizMaterielWarehouseJoins">
+		left join biz_materiel b on a.materiel_id = b.id
+	</sql>
+    
+	<select id="get" resultType="BizMaterielWarehouse">
+		SELECT 
+			<include refid="bizMaterielWarehouseColumns"/>
+		FROM biz_materiel_warehouse a
+		<include refid="bizMaterielWarehouseJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BizMaterielWarehouse">
+		SELECT 
+			<include refid="bizMaterielWarehouseColumns"/>
+		FROM biz_materiel_warehouse a
+		<include refid="bizMaterielWarehouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="warehouseId != null and warehouseId != ''">
+				AND a.warehouse_id = #{warehouseId}
+			</if>
+			<if test="bizMateriel != null and bizMateriel.id != null and bizMateriel.id != ''">
+				AND a.materiel_id = #{bizMateriel.id}
+			</if>
+			<if test="inBatch != null and inBatch != ''">
+				AND a.in_batch = #{inBatch}
+			</if>
+			<if test="inTime != null and inTime != ''">
+				AND a.in_time = #{inTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BizMaterielWarehouse">
+		SELECT 
+			<include refid="bizMaterielWarehouseColumns"/>
+		FROM biz_materiel_warehouse a
+		<include refid="bizMaterielWarehouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO biz_materiel_warehouse(
+			id,
+			warehouse_id,
+			materiel_id,
+			in_batch,
+			in_number,
+			in_time,
+			staff_id,
+			auditer_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{warehouseId},
+			#{bizMateriel.id},
+			#{inBatch},
+			#{inNumber},
+			#{inTime},
+			#{staffId},
+			#{auditerId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE biz_materiel_warehouse SET 	
+			warehouse_id = #{warehouseId},
+			materiel_id = #{bizMateriel.id},
+			in_batch = #{inBatch},
+			in_number = #{inNumber},
+			in_time = #{inTime},
+			staff_id = #{staffId},
+			auditer_id = #{auditerId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE biz_materiel_warehouse SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

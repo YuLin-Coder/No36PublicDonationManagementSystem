@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.itg.modules.biz.dao.BizMaterielDao">
+    
+	<sql id="bizMaterielColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.price AS "price",
+		a.description AS "description",
+		a.product_area AS "productArea",
+		a.supply_origin AS "supplyOrigin",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bizMaterielJoins">
+	</sql>
+    
+	<select id="get" resultType="BizMateriel">
+		SELECT 
+			<include refid="bizMaterielColumns"/>
+		FROM biz_materiel a
+		<include refid="bizMaterielJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BizMateriel">
+		SELECT 
+			<include refid="bizMaterielColumns"/>
+		FROM biz_materiel a
+		<include refid="bizMaterielJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="price != null and price != ''">
+				AND a.price = #{price}
+			</if>
+			<if test="description != null and description != ''">
+				AND a.description = #{description}
+			</if>
+			<if test="productArea != null and productArea != ''">
+				AND a.product_area = #{productArea}
+			</if>
+			<if test="supplyOrigin != null and supplyOrigin != ''">
+				AND a.supply_origin = #{supplyOrigin}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 利润统计-->
+	<select id="findMaterielStatisticsByType" resultType="com.online.itg.modules.biz.entity.BizMaterielStatistics">
+		<![CDATA[
+			SELECT
+				a.name name, 
+				SUM(price) priceSum
+			FROM
+				biz_materiel a
+			WHERE
+				a.del_flag = #{DEL_FLAG_NORMAL}
+		]]>
+		<if test="supplyOrigin != null and supplyOrigin != ''">
+  			and a.supply_origin = #{supplyOrigin}
+		</if>
+		GROUP BY name
+	</select>
+	
+	<select id="findAllList" resultType="BizMateriel">
+		SELECT 
+			<include refid="bizMaterielColumns"/>
+		FROM biz_materiel a
+		<include refid="bizMaterielJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO biz_materiel(
+			id,
+			name,
+			price,
+			description,
+			product_area,
+			supply_origin,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{price},
+			#{description},
+			#{productArea},
+			#{supplyOrigin},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE biz_materiel SET 	
+			name = #{name},
+			price = #{price},
+			description = #{description},
+			product_area = #{productArea},
+			supply_origin = #{supplyOrigin},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE biz_materiel SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

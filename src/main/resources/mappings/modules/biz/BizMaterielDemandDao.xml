@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.itg.modules.biz.dao.BizMaterielDemandDao">
+    
+	<sql id="bizMaterielDemandColumns">
+		a.id AS "id",
+		b.id AS "bizMateriel.id",
+		b.name AS "bizMateriel.name",
+		a.existing_number AS "existingNumber",
+		a.project_number AS "projectNumber",
+		a.emergency AS "emergency",
+		a.plant_id AS "plantId",
+		a.delivery_time AS "deliveryTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bizMaterielDemandJoins">
+		left join biz_materiel b on a.materiel_id = b.id
+	</sql>
+    
+	<select id="get" resultType="BizMaterielDemand">
+		SELECT 
+			<include refid="bizMaterielDemandColumns"/>
+		FROM biz_materiel_demand a
+		<include refid="bizMaterielDemandJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BizMaterielDemand">
+		SELECT 
+			<include refid="bizMaterielDemandColumns"/>
+		FROM biz_materiel_demand a
+		<include refid="bizMaterielDemandJoins"/>
+		<where>
+			a.del_flag = #{delFlag}
+			<if test="bizMateriel != null and bizMateriel.id != null and bizMateriel.id != ''">
+				AND a.materiel_id = #{bizMateriel.id}
+			</if>
+			<if test="createDate != null and createDate != ''">
+				AND a.create_date = #{createDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BizMaterielDemand">
+		SELECT 
+			<include refid="bizMaterielDemandColumns"/>
+		FROM biz_materiel_demand a
+		<include refid="bizMaterielDemandJoins"/>
+		<where>
+			a.del_flag = #{delFlag}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO biz_materiel_demand(
+			id,
+			materiel_id,
+			existing_number,
+			project_number,
+			emergency,
+			plant_id,
+			delivery_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{bizMateriel.id},
+			#{existingNumber},
+			#{projectNumber},
+			#{emergency},
+			#{plantId},
+			#{deliveryTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE biz_materiel_demand SET 	
+			materiel_id = #{bizMateriel.id},
+			existing_number = #{existingNumber},
+			project_number = #{projectNumber},
+			emergency = #{emergency},
+			plant_id = #{plantId},
+			delivery_time = #{deliveryTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE biz_materiel_demand SET 
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

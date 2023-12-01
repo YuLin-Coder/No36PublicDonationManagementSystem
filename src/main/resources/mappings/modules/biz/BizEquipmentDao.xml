@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.itg.modules.biz.dao.BizEquipmentDao">
+    
+	<sql id="bizEquipmentColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.type AS "type",
+		a.plant AS "plant",
+		a.capacity AS "capacity",
+		a.status AS "status",
+		a.amortization_time AS "amortizationTime",
+		a.begin_time AS "beginTime",
+		a.end_time AS "endTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bizEquipmentJoins">
+	</sql>
+    
+	<select id="get" resultType="BizEquipment">
+		SELECT 
+			<include refid="bizEquipmentColumns"/>
+		FROM biz_equipment a
+		<include refid="bizEquipmentJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BizEquipment">
+		SELECT 
+			<include refid="bizEquipmentColumns"/>
+		FROM biz_equipment a
+		<include refid="bizEquipmentJoins"/>
+		<where>
+			a.del_flag = #{delFlag}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="type != null and type != ''">
+				AND a.type = #{type}
+			</if>
+			<if test="plant != null and plant != ''">
+				AND a.plant = #{plant}
+			</if>
+			<if test="capacity != null and capacity != ''">
+				AND a.capacity = #{capacity}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="amortizationTime != null and amortizationTime != ''">
+				AND a.amortization_time = #{amortizationTime}
+			</if>
+			<if test="beginTime != null and beginTime != ''">
+				AND a.begin_time = #{beginTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BizEquipment">
+		SELECT 
+			<include refid="bizEquipmentColumns"/>
+		FROM biz_equipment a
+		<include refid="bizEquipmentJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO biz_equipment(
+			id,
+			name,
+			type,
+			plant,
+			capacity,
+			status,
+			amortization_time,
+			begin_time,
+			end_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{type},
+			#{plant},
+			#{capacity},
+			#{status},
+			#{amortizationTime},
+			#{beginTime},
+			#{endTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE biz_equipment SET 	
+			name = #{name},
+			type = #{type},
+			plant = #{plant},
+			capacity = #{capacity},
+			status = #{status},
+			amortization_time = #{amortizationTime},
+			begin_time = #{beginTime},
+			end_time = #{endTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE biz_equipment SET 
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
